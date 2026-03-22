@@ -33,9 +33,9 @@ int main()
             case 2: // SUB - вычетание 
                 int b1 = program[pc++];
                 int b2 = program[pc++];
-                int ind1 = b1 - 5; //преабразуем числа
-                int ind2 = b2 - 5; //в индексы массива
-                registers[ind1] -= registers[ind2];
+                int index1 = b1 - 5; //преабразуем числа
+                int index2 = b2 - 5; //в индексы массива
+                registers[index1] -= registers[index2];
                 break;
 
             case 3: // MOV	(reg, число)	Записать число в регистр reg
@@ -49,11 +49,6 @@ int main()
                     printf("%d ", registers[i]);
                 }
                 break;
-                
-
-
-
-
 
         }
     }
