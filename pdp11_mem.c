@@ -39,7 +39,7 @@ void test1_mem(address adr, word w, byte expb1, byte expb0)
     b_write(adr, b0);
     b_write(adr + 1, b1);
     word wres = w_read(adr);
-    fprintf(stderr, "2) b0 = %02hhx b1 = %02hhx\n   w = %04x wres = %04x\n", wres, b0, b1, w, wres);
+    fprintf(stderr, "2) b0 = %02hhx b1 = %02hhx\n   w = %04x wres = %04x\n", b0, b1, w, wres);
     assert(wres == w);
     adr += 2;
     printf("______________________________\n");
@@ -67,7 +67,8 @@ void test1_mem(address adr, word w, byte expb1, byte expb0)
 void test_mem()
 {
     test1_mem(0, 0x0a0b, 0x0a, 0x0b);
-    // test1_mem(010, 0xcadb, 0xca, 0xdb); 
+    test1_mem(010, 0xcadb, 0xca, 0xdb); 
+    test1_mem(67, 0xffff, 0xff, 0xff);
 }
 
 int main() 
