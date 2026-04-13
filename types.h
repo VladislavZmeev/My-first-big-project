@@ -19,6 +19,13 @@ typedef unsigned char byte;       // 8 bit
 typedef unsigned short int word;  // 16 bit
 typedef word address;              // 16 bit
 
+typedef struct {
+    word mask;
+    word opcode;
+    char * name;
+    void (*do_command)(void);
+} Command;
+
 extern word reg[8];
 extern byte mem[];
 #define pc reg[7]

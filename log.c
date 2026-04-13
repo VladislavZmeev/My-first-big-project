@@ -6,13 +6,13 @@
 // Текущий пороговый уровень логирования (по умолчанию INFO)
 static int current_log_level = INFO;
 
-// Массив для преобразования уровня в строку
-static const char* level_strings[] = {
-    "ERROR",
-    "INFO",
-    "TRACE",
-    "DEBUG"
-};
+// // Массив для преобразования уровня в строку
+// static const char* level_strings[] = {
+//     "ERROR",
+//     "INFO",
+//     "TRACE",
+//     "DEBUG"
+// };
 
 // Функция установки уровня логирования
 int set_log_level(int level) 
@@ -32,10 +32,10 @@ void trace(int level, const char* format, ...)
         return;
     }
     
-    // Выводим уровень логирования
-    if (level >= ERROR && level <= DEBUG) {
-        printf("[%s] ", level_strings[level]);
-    }
+    // // Выводим уровень логирования
+    // if (level >= ERROR && level <= DEBUG) {
+    //     printf("[%s] ", level_strings[level]);
+    // }
     
     // Выводим основное сообщение
     va_list args;
@@ -43,5 +43,4 @@ void trace(int level, const char* format, ...)
     vprintf(format, args);
     va_end(args);
     
-    printf("\n");
 }

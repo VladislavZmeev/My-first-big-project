@@ -7,6 +7,16 @@
 
 unsigned long long int coounter;
 word reg[8];
+Command command[] = {
+    {0170000, 0060000, "add", do_add},
+    {0170000, 0010000, "mov", do_mov},
+    {0177777, 0000000, "halt", do_halt},
+    // ...
+    {0000000, 0000000, "unknown", do_nothing}
+
+};
+
+int halt_flag = 0;  // глобальная переменная
 
 
 int main(int argc, char *argv[]) 
@@ -27,48 +37,38 @@ int main(int argc, char *argv[])
 }
 
 
-
 void run()
 {
-    // следующее слово будем читать по адресу 1000 (восьмеричное)
-    pc = 01000;
+    pc = 01000;  // начальный адрес
     set_log_level(DEBUG);
+    
+    word w;
+    int i = 0;
 
-    word w;     // текущее слово, которое содержит команду
-    // главный цикл выполнения программы
-    while(1) {
-        // читаем текущее слово
+    while (!halt_flag) {
         w = w_read(pc);
-        // печатаем адрес и слово по этому адресу, как в листинге
         trace(TRACE, "%06o %06o: ", pc, w);
-        // pc сразу же указывает на следующее неразобранное слово
         pc += 2;
+        
+        for (i = 0; command[i].name != NULL; i++) 
+        {
+            if ((w & command[i].mask) == command[i].opcode) 
+            {
+                trace(TRACE, "%s ", command[i].name);
+                command[i].do_command();
+                break;
+            }
+        }
+        putchar('\n');
 
-        if ((w & HALT_MASK) == HALT_CODE) {
-            trace(TRACE, "halt");
-            do_halt();
-            break;
-        }
-        else if ((w & MOV_MASK) == MOV_CODE) {
-            trace(TRACE, "mov");
-            // Здесь будет обработка MOV
-        }
-        else if ((w & ADD_MASK) == ADD_CODE) {
-            trace(TRACE, "add");
-            // Здесь будет обработка ADD
-        }
-        else {
-            trace(TRACE, "unknown");
-        }
-
-
+        
     }
-    do_halt();
 }
 
 void do_halt()
 {
     trace(INFO, "THE END!!!\n");
+    halt_flag = 1;
     exit(0);
 }
 void do_add() 
