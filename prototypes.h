@@ -1,9 +1,11 @@
 #ifndef MEM_TESTS_H
 #define MEM_TESTS_H
 #include "types.h" 
+#include <stdio.h>
 
 void test1_mem(address adr, word w, byte expb1, byte expb0);
 void test_mem();
+void test_mem_with_loaded_data();
 
 void b_write(address adr, byte b);
 byte b_read(address adr);
@@ -21,6 +23,9 @@ void mem_dump(address adr, int size);
 
 int set_log_level(int level);
 void log_message(int level, const char* format, ...);
+
+void load_data(FILE * file);
+void load_file(const char * filename);
 
 
 #endif

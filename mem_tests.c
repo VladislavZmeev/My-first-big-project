@@ -59,3 +59,22 @@ void test_mem()
     test1_mem(010, 0xcadb, 0xca, 0xdb); 
     test1_mem(67, 0xffff, 0xff, 0xff);
 }
+
+void test_mem_with_loaded_data()
+{
+    printf("\n=== ТЕСТЫ НА ЗАГРУЖЕННЫХ ДАННЫХ ===\n\n");
+    
+    // Берём адреса и данные из загруженной памяти
+    address test_adr = 0x0000;
+    word test_word = w_read(test_adr);
+    byte test_b1 = b_read(test_adr + 1);
+    byte test_b0 = b_read(test_adr);
+    
+    printf("Используем данные из памяти по адресу 0x%04x:\n", test_adr);
+    printf("  слово: 0x%04x\n", test_word);
+    printf("  старший байт: 0x%02x\n", test_b1);
+    printf("  младший байт: 0x%02x\n", test_b0);
+    
+    // Запускаем стандартный тест с этими данными
+    test1_mem(test_adr + 4, test_word, test_b1, test_b0);
+}

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #define N 1000
 
-int main() 
+int main1() 
 {
     int registers[4] = {0, 0, 0, 0}; // мы создаем 4 регистра
     int program[N];                  // и массив из чисел, куда будем вводить исходные значения
