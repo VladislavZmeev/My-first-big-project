@@ -5,7 +5,7 @@
 
 void test1_mem(address adr, word w, byte expb1, byte expb0);
 void test_mem();
-void test_mem_with_loaded_data();
+void test_mem_with_loaded_data(address test_adr);
 
 void b_write(address adr, byte b);
 byte b_read(address adr);
@@ -22,10 +22,16 @@ void mem_dump(address adr, int size);
 // адрес: восьмеричное_слово шестнадцатеричное_слово
 
 int set_log_level(int level);
-void log_message(int level, const char* format, ...);
+void trace(int level, const char* format, ...);
 
 void load_data(FILE * file);
 void load_file(const char * filename);
+
+void run();
+void do_halt();
+void do_add();
+void do_mov();
+void do_nothing();
 
 
 #endif

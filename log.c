@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
-
-// Уровни логирования
-#define ERROR   0
-#define INFO    1
-#define TRACE   2
-#define DEBUG   3
+#include "types.h"
 
 // Текущий пороговый уровень логирования (по умолчанию INFO)
 static int current_log_level = INFO;
@@ -30,7 +25,7 @@ int set_log_level(int level)
 }
 
 // Функция логирования
-void log_message(int level, const char* format, ...) 
+void trace(int level, const char* format, ...) 
 {
     // Проверяем, нужно ли выводить сообщение
     if (level > current_log_level) {

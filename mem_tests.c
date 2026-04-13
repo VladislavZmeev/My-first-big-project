@@ -2,6 +2,7 @@
 #include "prototypes.h"
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 
 void test1_mem(address adr, word w, byte expb1, byte expb0)  
 {
@@ -60,12 +61,11 @@ void test_mem()
     test1_mem(67, 0xffff, 0xff, 0xff);
 }
 
-void test_mem_with_loaded_data()
+void test_mem_with_loaded_data(address test_adr)
 {
     printf("\n=== ТЕСТЫ НА ЗАГРУЖЕННЫХ ДАННЫХ ===\n\n");
     
     // Берём адреса и данные из загруженной памяти
-    address test_adr = 0x0000;
     word test_word = w_read(test_adr);
     byte test_b1 = b_read(test_adr + 1);
     byte test_b0 = b_read(test_adr);
@@ -77,4 +77,56 @@ void test_mem_with_loaded_data()
     
     // Запускаем стандартный тест с этими данными
     test1_mem(test_adr + 4, test_word, test_b1, test_b0);
+}
+
+void load_file(const char * filename)
+{
+    FILE * file = fopen(filename, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Ошибка открытия файла '%s': ", filename);
+        perror("");
+        exit(1);
+    }
+    
+    printf("Загрузка тестовых данных из: %s\n", filename);
+    load_data(file);
+    fclose(file);
+    printf("Тестовые данные успешно загружены\n");
+}
+
+void mem_dump(address adr, int size_bytes)
+{
+    // Печатаем побайтово, но в выводе группируем по словам (2 байта)
+    for(int i = 0; i < size_bytes; i += 2)
+    {
+        if(i + 1 < size_bytes)
+        {
+            word w = b_read(adr + i) | (b_read(adr + i + 1) << 8);
+            printf("%06o: %06o %04x\n", adr + i, w, w);
+        }
+        else
+        {
+            // Если остался один байт (нечетное количество)
+            word w = b_read(adr + i);
+            printf("%06o: %06o %04x\n", adr + i, w, w);
+        }
+    }
+}
+
+void load_data(FILE * file)
+{
+    address adr;
+    unsigned long int n;
+    byte b;
+    
+    while(fscanf(file, "%hx %lx", &adr, &n) == 2)
+    {
+        for(unsigned long int i = 0; i < n; i++)
+        {
+            fscanf(file, "%hhx", &b);
+            if(adr + i < MEMESIZE)  // проверка границ
+                mem[adr + i] = b;
+        }
+    }
+    
 }
