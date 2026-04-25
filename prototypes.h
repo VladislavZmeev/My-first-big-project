@@ -33,5 +33,8 @@ void do_add();
 void do_mov();
 void do_nothing();
 
+Arg get_mr(word w);
+void print_reg();
+
 
 #endif
