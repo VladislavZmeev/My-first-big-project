@@ -15,7 +15,7 @@ static int current_log_level = INFO;
 // };
 
 // Функция установки уровня логирования
-int set_log_level(int level) 
+int set_log_level(LogLevel level) 
 {
     int old_level = current_log_level;
     if (level >= ERROR && level <= DEBUG) {

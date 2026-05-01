@@ -1,22 +1,31 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define MEMESIZE (64*1024) // 64 KB
+#define MEM_SIZE (64*1024) // 64 KB
 // Уровни логирования
-#define ERROR   0
-#define INFO    1
-#define TRACE   2
-#define DEBUG   3
+typedef enum {
+    ERROR = 0,
+    INFO,
+    TRACE,
+    DEBUG,
+} LogLevel;
 
 typedef unsigned char byte;       // 8 bit
 typedef unsigned short int word;  // 16 bit
-typedef word address;              // 16 bit
+typedef word address;             // 16 bit
+
+#define REGSIZE 8
+#define NO_ARGS 0
+#define HAS_SS 1
+#define HAS_DD (1 << 1)
+#define HAS_NN (1 << 2 )
 
 typedef struct {
     word mask;
     word opcode;
     char * name;
-    void (*do_command)(void);
+    void (* do_command)(void);
+    short int operands; // has ss,, dd, nn, xx, r, etc
 } Command;
 
 extern word reg[8];

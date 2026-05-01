@@ -32,6 +32,7 @@ void do_halt();
 void do_add();
 void do_mov();
 void do_sob();
+void do_clr();
 void do_nothing();
 
 Arg get_mr(word w);

@@ -88,10 +88,10 @@ void load_file(const char * filename)
         exit(1);
     }
     
-    printf("Загрузка тестовых данных из: %s\n", filename);
+    trace(INFO, "Загрузка тестовых данных из: %s\n", filename);
     load_data(file);
     fclose(file);
-    printf("Тестовые данные успешно загружены\n");
+    trace(INFO, "Тестовые данные успешно загружены\n");
 }
 
 void mem_dump(address adr, int size_bytes)
@@ -124,9 +124,8 @@ void load_data(FILE * file)
         for(unsigned long int i = 0; i < n; i++)
         {
             fscanf(file, "%hhx", &b);
-            if(adr + i < MEMESIZE)  // проверка границ
+            if(adr + i < MEM_SIZE)  // проверка границ
                 mem[adr + i] = b;
         }
     }
-    
 }
