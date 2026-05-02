@@ -8,9 +8,9 @@ word reg[8];
 const Command command[] = {
     {0170000, 0060000, "add", do_add, HAS_DD | HAS_SS},     // 2 операнда
     {0170000, 0010000, "mov", do_mov, HAS_DD | HAS_SS},     // 2 операнда
-    //{0177700, 0000000, "clr", do_clr, HAS_DD},     // 1 операнд
-    {0177777, 0000000, "halt", do_halt, NO_ARGS},   // 0 операндов
-    //{0177700, 0007700, "sob", do_sob, HAS_NN},     // 2 операнда 
+    {0177700, 0005000, "clr", do_clr, HAS_DD},              // 1 операнд
+    {0177000, 0077000, "sob", do_sob, NO_ARGS},             // 2 операнда
+    {0177777, 0000000, "halt", do_halt, NO_ARGS},           // 0 операндов
     {0000000, 0000000, "unknown", do_nothing, 0}
 };
 static const size_t COMMANDS_SIZE = sizeof(command) / sizeof(command[0]);
@@ -21,7 +21,7 @@ int halt_flag = 0;  // глобальная переменная
 int main(int argc, char *argv[]) 
 { 
     const char * filename = (argc > 1) ? argv[1] : "no file";
-    trace(INFO, "Используется файл: %s\n", filename);
+    trace(INFO, "\nИспользуется файл: %s\n", filename);
     load_file(filename);
     
     run();
@@ -38,35 +38,36 @@ void run()
     set_log_level(DEBUG);
     
     word w = 0;
-    putchar('\n');
+    trace(INFO, "---------------- running --------------\n");
     while (!halt_flag) {
         w = w_read(pc);
         current = w;
-        trace(TRACE, "%06o %06o: ", pc, w);
+        trace(TRACE, "%06o: ", pc);
         pc += 2;
 
         for (size_t i = 0; i <= COMMANDS_SIZE; i++) 
         {
-            if ((w & command[i].mask) == command[i].opcode) 
+            if ((w & command[i].mask) == command[i].opcode)
             {
                 trace(TRACE, "%s ", command[i].name);
                 
                 // Разбираем операнды в зависимости от количества
-                if (command[i].operands & HAS_SS) {
-                    ss = get_mr(w);
+                if (command[i].operands & HAS_SS) 
+                {
+                    ss = get_mr(w >> 6);
                 }
-                if (command[i].operands & HAS_DD) {
-                    dd = get_mr(w >> 6);
-                }
+                dd = get_mr(w);
                 
                 command[i].do_command();
                 break;
             }
         }
         putchar('\n');
-        print_reg();
         putchar('\n');
     }
+    trace(INFO, "\n---------------- halted ---------------\n");
+    trace(INFO, "r0=%06o r2=%06o r4=%06o sp=%06o\n", reg[0], reg[2], reg[4], reg[6]);
+    trace(INFO, "r1=%06o r3=%06o r5=%06o pc=%06o\n", reg[1], reg[3], reg[5], reg[7]);
 }
 void print_reg()
 {
@@ -76,7 +77,6 @@ void print_reg()
 
 void do_halt()
 {
-    trace(INFO, "\nTHE END!!!\n");
     halt_flag = 1;
 }
 
@@ -99,6 +99,10 @@ void do_sob()
     
     if (reg[reg_num] != 0) {
         pc = pc - (offset * 2);
+    }
+    trace(TRACE, "     ");
+    if (reg[reg_num] != 0) {
+        trace(TRACE, "%06o", pc);
     }
 }
 

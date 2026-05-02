@@ -54,6 +54,7 @@ void test1_mem(address adr, word w, byte expb1, byte expb0)
 
 
 }
+
 void test_mem()
 {
     test1_mem(0, 0x0a0b, 0x0a, 0x0b);
@@ -61,29 +62,11 @@ void test_mem()
     test1_mem(67, 0xffff, 0xff, 0xff);
 }
 
-void test_mem_with_loaded_data(address test_adr)
-{
-    printf("\n=== ТЕСТЫ НА ЗАГРУЖЕННЫХ ДАННЫХ ===\n\n");
-    
-    // Берём адреса и данные из загруженной памяти
-    word test_word = w_read(test_adr);
-    byte test_b1 = b_read(test_adr + 1);
-    byte test_b0 = b_read(test_adr);
-    
-    printf("Используем данные из памяти по адресу 0x%04x:\n", test_adr);
-    printf("  слово: 0x%04x\n", test_word);
-    printf("  старший байт: 0x%02x\n", test_b1);
-    printf("  младший байт: 0x%02x\n", test_b0);
-    
-    // Запускаем стандартный тест с этими данными
-    test1_mem(test_adr + 4, test_word, test_b1, test_b0);
-}
-
 void load_file(const char * filename)
 {
     FILE * file = fopen(filename, "r");
     if (file == NULL) {
-        fprintf(stderr, "Ошибка открытия файла '%s': ", filename);
+        fprintf(stderr, "Ошибка открытия файла '%s': \n", filename);
         perror("");
         exit(1);
     }
@@ -91,7 +74,24 @@ void load_file(const char * filename)
     trace(INFO, "Загрузка тестовых данных из: %s\n", filename);
     load_data(file);
     fclose(file);
-    trace(INFO, "Тестовые данные успешно загружены\n");
+    trace(INFO, "Тестовые данные успешно загружены\n\n");
+}
+
+void load_data(FILE * file)
+{
+    address adr;
+    unsigned long int n;
+    byte b;
+    
+    while(fscanf(file, "%hx %lx", &adr, &n) == 2)
+    {
+        for(unsigned long int i = 0; i < n; i++)
+        {
+            fscanf(file, "%hhx", &b);
+            if(adr + i < MEM_SIZE)  // проверка границ
+                mem[adr + i] = b;
+        }
+    }
 }
 
 void mem_dump(address adr, int size_bytes)
@@ -113,19 +113,3 @@ void mem_dump(address adr, int size_bytes)
     }
 }
 
-void load_data(FILE * file)
-{
-    address adr;
-    unsigned long int n;
-    byte b;
-    
-    while(fscanf(file, "%hx %lx", &adr, &n) == 2)
-    {
-        for(unsigned long int i = 0; i < n; i++)
-        {
-            fscanf(file, "%hhx", &b);
-            if(adr + i < MEM_SIZE)  // проверка границ
-                mem[adr + i] = b;
-        }
-    }
-}

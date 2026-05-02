@@ -16,19 +16,12 @@ byte b_read(address adr)
 
 void w_write(address adr, word w)
 {
-    // пишем значение (слово) val по адресу adr
-    assert((adr & 1) == 0);
-    mem[adr] = w;
-    // на адресах от 0 до 7 считаем, что адресуются регистры, а не RAM
-
     if (adr < REGSIZE) {
-        // пишем в регистр
         reg[adr] = w;
-    }
-    else {
-        // пишем в RAM
+    } else {
         assert((adr & 1) == 0);
-        mem[adr] = w;
+        mem[adr] = w & 0xFF;
+        mem[adr + 1] = (w >> 8) & 0xFF;
     }
 }
 word w_read(address adr)

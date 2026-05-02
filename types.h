@@ -31,6 +31,7 @@ typedef struct {
 extern word reg[8];
 extern byte mem[];
 #define pc reg[7]
+#define sp reg[6]
 
 typedef struct {
     word val;     // значение (что)
