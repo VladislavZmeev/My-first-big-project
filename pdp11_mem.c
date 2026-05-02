@@ -45,7 +45,7 @@ void run()
         trace(TRACE, "%06o: ", pc);
         pc += 2;
 
-        for (size_t i = 0; i <= COMMANDS_SIZE; i++) 
+        for (size_t i = 0; i < COMMANDS_SIZE; i++) 
         {
             if ((w & command[i].mask) == command[i].opcode)
             {
@@ -56,19 +56,35 @@ void run()
                 {
                     ss = get_mr(w >> 6);
                 }
-                dd = get_mr(w);
+
+                if (command[i].operands & HAS_DD) 
+                {
+                    dd = get_mr(w);
+                }
                 
+                // отладочная печать:
                 command[i].do_command();
+                if (command[i].opcode == 0010000) // mov
+                { 
+                    trace(TRACE, "             [%06o]=%06o ", ss.adr, ss.val);
+                }
+
+                if (command[i].opcode == 0060000) // add
+                { 
+                    int sreg = (current >> 6) & 7;
+                    int dreg = current & 7;
+                    trace(TRACE, "             R%d=%06o R%d=%06o ", sreg, reg[sreg], dreg, reg[dreg]);
+                }                
                 break;
             }
         }
-        putchar('\n');
-        putchar('\n');
+        trace(TRACE, "\n\n");
     }
     trace(INFO, "\n---------------- halted ---------------\n");
     trace(INFO, "r0=%06o r2=%06o r4=%06o sp=%06o\n", reg[0], reg[2], reg[4], reg[6]);
     trace(INFO, "r1=%06o r3=%06o r5=%06o pc=%06o\n", reg[1], reg[3], reg[5], reg[7]);
 }
+
 void print_reg()
 {
     trace(TRACE, "r0:%o r1:%o r2:%o r3:%o r4:%o r5:%o r6:%o r7:%o\n",
