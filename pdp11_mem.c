@@ -7,7 +7,7 @@ unsigned long long int coounter;
 word reg[8];
 const Command command[] = {
     {0170000, 0060000, "add", do_add, HAS_DD | HAS_SS},     // 2 операнда
-    {0170000, 0010000, "mov", do_mov, HAS_DD | HAS_SS},     // 2 операнда
+    {0070000, 0010000, "mov", do_mov, HAS_DD | HAS_SS},     // 2 операнда
     {0177700, 0005000, "clr", do_clr, HAS_DD},              // 1 операнд
     {0177000, 0077000, "sob", do_sob, NO_ARGS},             // 2 операнда
     {0177777, 0000000, "halt", do_halt, NO_ARGS},           // 0 операндов
@@ -29,8 +29,9 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-Arg ss, dd;   // глобальные переменные
-word current; // глобальные переменные
+Arg ss, dd;           // глобальные переменные
+word current;         // глобальные переменные
+unsigned int is_byte; // 0 если word, 1 если byte
 
 void run()
 {
@@ -42,6 +43,7 @@ void run()
     while (!halt_flag) {
         w = w_read(pc);
         current = w;
+        is_byte = (w & 0100000) != 0; // 0 если word, 1 если byte
         trace(TRACE, "%06o: ", pc);
         pc += 2;
 
@@ -99,7 +101,11 @@ void do_halt()
 
 void do_mov()
 {
-    w_write(dd.adr, ss.val);
+    if (is_byte) {
+        b_write(dd.adr, ss.val);
+    } else {
+        w_write(dd.adr, ss.val);
+    }
 }
 
 void do_add()
@@ -137,6 +143,7 @@ Arg get_mr(word w)
     Arg res;
     int r = w & 7;          // номер регистра
     int m = (w >> 3) & 7;   // номер моды
+    int step = (is_byte && r != 6 && r != 7) ? 1 : 2; //для мод 2 и 4 нужен разный шаг
 
     switch (m) {
     case 0:  // Rn
@@ -151,14 +158,10 @@ Arg get_mr(word w)
         trace(TRACE, "(R%d) ", r);
         break;
 
-    case 2:  // (Rn)+ или #константа
+    case 2:
         res.adr = reg[r];
-        res.val = w_read(res.adr);
-        reg[r] += 2;
-        if (r == 7)
-            trace(TRACE, "#%o ", res.val);
-        else
-            trace(TRACE, "(R%d)+ ", r);
+        res.val = is_byte ? b_read(res.adr) : w_read(res.adr);
+        reg[r] += step;
         break;
 
     case 3:  // @(Rn)+
@@ -171,11 +174,10 @@ Arg get_mr(word w)
             trace(TRACE, "@(R%d)+ ", r);
         break;
 
-    case 4:  // -(Rn)
-        reg[r] -= 2;
+    case 4:
+        reg[r] -= step;
         res.adr = reg[r];
-        res.val = w_read(res.adr);
-        trace(TRACE, "-(R%d) ", r);
+        res.val = is_byte ? b_read(res.adr) : w_read(res.adr);
         break;
 
     case 5:
