@@ -35,7 +35,7 @@ word current; // глобальные переменные
 void run()
 {
     pc = 01000;
-    set_log_level(DEBUG);
+    set_log_level(TRACE);
     
     word w = 0;
     trace(INFO, "---------------- running --------------\n");
@@ -74,11 +74,12 @@ void run()
                     int sreg = (current >> 6) & 7;
                     int dreg = current & 7;
                     trace(TRACE, "             R%d=%06o R%d=%06o ", sreg, reg[sreg], dreg, reg[dreg]);
-                }                
+                } 
+                print_reg();               
                 break;
             }
         }
-        trace(TRACE, "\n\n");
+        trace(TRACE, "\n");
     }
     trace(INFO, "\n---------------- halted ---------------\n");
     trace(INFO, "r0=%06o r2=%06o r4=%06o sp=%06o\n", reg[0], reg[2], reg[4], reg[6]);
@@ -87,7 +88,7 @@ void run()
 
 void print_reg()
 {
-    trace(TRACE, "r0:%o r1:%o r2:%o r3:%o r4:%o r5:%o r6:%o r7:%o\n",
+    trace(DEBUG, "\nr0:%o r1:%o r2:%o r3:%o r4:%o r5:%o r6:%o r7:%o\n",
         reg[0], reg[1], reg[2], reg[3], reg[4], reg[5], reg[6], reg[7]);
 }
 
@@ -107,18 +108,17 @@ void do_add()
 }
 
 void do_sob()
-{   
-    int reg_num = (current >> 6) & 7;  // биты 6-8
-    word offset = current & 077;       // младшие 6 бит
-    
-    reg[reg_num]--;
-    
-    if (reg[reg_num] != 0) {
-        pc = pc - (offset * 2);
-    }
-    trace(TRACE, "     ");
-    if (reg[reg_num] != 0) {
-        trace(TRACE, "%06o", pc);
+{
+    int r = (current >> 6) & 7;
+    word nn = current & 077;
+    address target = pc - 2 * nn;
+
+    trace(TRACE, "R%d, %06o", r, target);
+
+    reg[r]--;
+
+    if (reg[r] != 0) {
+        pc = target;
     }
 }
 
