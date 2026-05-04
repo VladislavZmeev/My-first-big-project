@@ -34,6 +34,12 @@ void do_mov();
 void do_sob();
 void do_clr();
 void do_nothing();
+void do_br();
+void do_beq();
+void do_bne();
+
+void set_NZ(word);
+void set_NZ_byte(byte);
 
 Arg get_mr(word w);
 void print_reg();

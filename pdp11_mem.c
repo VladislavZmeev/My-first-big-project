@@ -3,6 +3,8 @@
 #include "types.h"
 #include "prototypes.h"
 
+uint N, Z, V, C;
+
 unsigned long long int coounter;
 word reg[8];
 const Command command[] = {
@@ -10,6 +12,11 @@ const Command command[] = {
     {0070000, 0010000, "mov", do_mov, HAS_DD | HAS_SS},     // 2 операнда
     {0177700, 0005000, "clr", do_clr, HAS_DD},              // 1 операнд
     {0177000, 0077000, "sob", do_sob, NO_ARGS},             // 2 операнда
+
+    {0177400, 0000400, "br",   do_br,   NO_ARGS},
+    {0177400, 0001400, "beq",  do_beq,  NO_ARGS},
+    {0177400, 0001000, "bne",  do_bne,  NO_ARGS},
+
     {0177777, 0000000, "halt", do_halt, NO_ARGS},           // 0 операндов
     {0000000, 0000000, "unknown", do_nothing, 0}
 };
@@ -103,14 +110,25 @@ void do_mov()
 {
     if (is_byte) {
         b_write(dd.adr, ss.val);
+        set_NZ_byte(ss.val);
     } else {
         w_write(dd.adr, ss.val);
+        set_NZ(ss.val);
     }
+
+    V = 0;
+    // C не меняется
 }
 
 void do_add()
 {
-    w_write(dd.adr, ss.val + dd.val);
+    unsigned int res = ss.val + dd.val;
+
+    w_write(dd.adr, res);
+
+    set_NZ((word)res);
+    C = res > 0177777;
+    V = 0;
 }
 
 void do_sob()
@@ -130,13 +148,56 @@ void do_sob()
 
 void do_clr()
 {
-    w_write(dd.adr, 0);
+    if (is_byte) {
+        b_write(dd.adr, 0);
+    } else {
+        w_write(dd.adr, 0);
+    }
+
+    N = 0;
+    Z = 1;
+    V = 0;
+    C = 0;
 }
 
 void do_nothing() 
 {
 
 }
+
+void do_br()
+{
+    byte xx = current & 0377;
+
+    pc = pc + 2 * xx;
+}
+
+void do_beq()
+{
+    if (Z) {
+        do_br();
+    }
+}
+
+void do_bne()
+{
+    if (!Z) {
+        do_br();
+    }
+}
+
+void set_NZ(word w)
+{
+    N = (w & 0100000) != 0;
+    Z = (w == 0);
+}
+
+void set_NZ_byte(byte b)
+{
+    N = (b & 0200) != 0;
+    Z = (b == 0);
+}
+
 
 Arg get_mr(word w)
 {
@@ -162,6 +223,10 @@ Arg get_mr(word w)
         res.adr = reg[r];
         res.val = is_byte ? b_read(res.adr) : w_read(res.adr);
         reg[r] += step;
+        if (r == 7)
+            trace(TRACE, "#%o ", res.val);
+        else
+            trace(TRACE, "(R%d)+ ", r);
         break;
 
     case 3:  // @(Rn)+
@@ -178,6 +243,7 @@ Arg get_mr(word w)
         reg[r] -= step;
         res.adr = reg[r];
         res.val = is_byte ? b_read(res.adr) : w_read(res.adr);
+        trace(TRACE, "-(R%d) ", r);
         break;
 
     case 5:

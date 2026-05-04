@@ -10,6 +10,7 @@ typedef enum {
     DEBUG,
 } LogLevel;
 
+typedef unsigned int uint;
 typedef unsigned char byte;       // 8 bit
 typedef unsigned short int word;  // 16 bit
 typedef word address;             // 16 bit
@@ -27,6 +28,11 @@ typedef struct {
     void (* do_command)(void);
     short int operands; // has ss,, dd, nn, xx, r, etc
 } Command;
+
+extern uint N;
+extern uint Z;
+extern uint V;
+extern uint C; 
 
 extern word reg[8];
 extern byte mem[];
