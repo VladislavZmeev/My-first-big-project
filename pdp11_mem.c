@@ -8,17 +8,20 @@ uint N, Z, V, C;
 unsigned long long int coounter;
 word reg[8];
 const Command command[] = {
-    {0170000, 0060000, "add", do_add, HAS_DD | HAS_SS},     // 2 операнда
-    {0070000, 0010000, "mov", do_mov, HAS_DD | HAS_SS},     // 2 операнда
-    {0177700, 0005000, "clr", do_clr, HAS_DD},              // 1 операнд
-    {0177000, 0077000, "sob", do_sob, NO_ARGS},             // 2 операнда
+    {0170000, 0060000, "add", do_add, HAS_DD | HAS_SS},
+    {0070000, 0010000, "mov", do_mov, HAS_DD | HAS_SS},
+    {0177700, 0005000, "clr", do_clr, HAS_DD},
+    {0177000, 0077000, "sob", do_sob, NO_ARGS},
 
-    {0177400, 0000400, "br",   do_br,   NO_ARGS},
-    {0177400, 0001400, "beq",  do_beq,  NO_ARGS},
-    {0177400, 0001000, "bne",  do_bne,  NO_ARGS},
+    {0077700, 0005700, "tst", do_tst, HAS_DD},
 
-    {0177777, 0000000, "halt", do_halt, NO_ARGS},           // 0 операндов
-    {0000000, 0000000, "unknown", do_nothing, 0}
+    {0177400, 0000400, "br",  do_br,  NO_ARGS},
+    {0177400, 0001400, "beq", do_beq, NO_ARGS},
+    {0177400, 0001000, "bne", do_bne, NO_ARGS},
+    {0177400, 0100000, "bpl", do_bpl, NO_ARGS},
+
+    {0177777, 0000000, "halt", do_halt, NO_ARGS},
+    {0000000, 0000000, "unknown", do_nothing, NO_ARGS}
 };
 static const size_t COMMANDS_SIZE = sizeof(command) / sizeof(command[0]);
 
@@ -82,7 +85,7 @@ void run()
                 { 
                     int sreg = (current >> 6) & 7;
                     int dreg = current & 7;
-                    trace(TRACE, "             R%d=%06o R%d=%06o ", sreg, reg[sreg], dreg, reg[dreg]);
+                    trace(TRACE, "\t\t\tR%d=%06o R%d=%06o ", sreg, reg[sreg], dreg, reg[dreg]);
                 } 
                 print_reg();               
                 break;
