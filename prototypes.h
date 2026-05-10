@@ -41,6 +41,9 @@ void do_bne();
 void set_NZ(word);
 void set_NZ_byte(byte);
 
+void do_tst();
+void do_bpl();
+
 Arg get_mr(word w);
 void print_reg();
 

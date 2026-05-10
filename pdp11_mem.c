@@ -225,6 +225,34 @@ void set_NZ_byte(byte b)
     Z = (b == 0);
 }
 
+void do_tst()
+{
+    if (is_byte) {
+        set_NZ_byte(dd.val);
+    } else {
+        set_NZ(dd.val);
+    }
+
+    V = 0;
+    C = 0;
+}
+
+void do_bpl()
+{
+    int xx = current & 0377;
+    address target;
+
+    if (xx & 0200) {
+        xx -= 0400;
+    }
+
+    target = pc + 2 * xx;
+    trace(TRACE, "%06o", target);
+
+    if (!N) {
+        pc = target;
+    }
+}
 
 Arg get_mr(word w)
 {
@@ -258,7 +286,7 @@ Arg get_mr(word w)
 
     case 3:  // @(Rn)+
         res.adr = w_read(reg[r]);
-        res.val = w_read(res.adr);
+        res.val = is_byte ? b_read(res.adr) : w_read(res.adr);
         reg[r] += 2;
         if (r == 7)
             trace(TRACE, "@#%o ", res.adr);

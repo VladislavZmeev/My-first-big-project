@@ -21,6 +21,10 @@ typedef word address;             // 16 bit
 #define HAS_DD (1 << 1)
 #define HAS_NN (1 << 2 )
 
+#define OSTAT 0177564
+#define ODATA 0177566
+#define READY 0200
+
 typedef struct {
     word mask;
     word opcode;

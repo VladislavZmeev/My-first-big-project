@@ -7,10 +7,12 @@ byte mem[MEM_SIZE]; // память для нашей виртуальной м�
 
 void b_write(address adr, byte b)
 {
-    if (adr < REGSIZE) { // если передаем в адрес от 0 до 8, то мы считаем, что записываем в регистр а не RAM
-        reg[adr] = (b & 0200) ? (0177400 | b) : b; // делает знаковое расширение байта до слова
-                                                   // 0177400 — это маска, у которой старшие 8 бит слова заполнены единицами, а младшие 8 бит остаются под значение b
-    } else {
+    if (adr < REGSIZE) {
+        reg[adr] = (b & 0200) ? (0177400 | b) : b;
+    } else if (adr == ODATA) {
+        putchar(b);
+        fflush(stdout);
+    } else if (adr != OSTAT) {
         mem[adr] = b;
     }
 }
@@ -19,6 +21,9 @@ byte b_read(address adr)
 {
     if (adr < REGSIZE) {
         return reg[adr] & 0377;
+    }
+    if (adr == OSTAT) {
+        return READY;
     }
     return mem[adr];
 }
@@ -34,6 +39,10 @@ void w_write(address adr, word w)
 }
 word w_read(address adr)
 {
+    if (adr == OSTAT) {
+        return READY;
+    }
+
     word w = ((word)(mem[adr + 1])) << 8;
     w = w | (mem[adr] & 0xFF);
     return w;
