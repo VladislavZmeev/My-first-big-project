@@ -167,22 +167,49 @@ void do_nothing()
 
 void do_br()
 {
-    byte xx = current & 0377;
+    int xx = current & 0377;
+    address target = 0;
 
-    pc = pc + 2 * xx;
+    if (xx & 0200) {
+        xx -= 0400;
+    }
+
+    target = pc + 2 * xx;
+    trace(TRACE, "%06o", target);
+    pc = target;
 }
 
 void do_beq()
 {
+    int xx = current & 0377;
+    address target;
+
+    if (xx & 0200) {
+        xx -= 0400;
+    }
+
+    target = pc + 2 * xx;
+    trace(TRACE, "%06o", target);
+
     if (Z) {
-        do_br();
+        pc = target;
     }
 }
 
 void do_bne()
 {
+    int xx = current & 0377;
+    address target;
+
+    if (xx & 0200) {
+        xx -= 0400;
+    }
+
+    target = pc + 2 * xx;
+    trace(TRACE, "%06o", target);
+
     if (!Z) {
-        do_br();
+        pc = target;
     }
 }
 
