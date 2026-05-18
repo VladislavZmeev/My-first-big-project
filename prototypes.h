@@ -38,6 +38,9 @@ void do_br();
 void do_beq();
 void do_bne();
 
+void do_jsr();
+void do_rts();
+
 void set_NZ(word);
 void set_NZ_byte(byte);
 

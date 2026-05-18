@@ -20,6 +20,9 @@ const Command command[] = {
     {0177400, 0001000, "bne", do_bne, NO_ARGS},
     {0177400, 0100000, "bpl", do_bpl, NO_ARGS},
 
+    {0177000, 0004000, "jsr", do_jsr, HAS_DD},
+    {0177770, 0000200, "rts", do_rts, NO_ARGS},
+
     {0177777, 0000000, "halt", do_halt, NO_ARGS},
     {0000000, 0000000, "unknown", do_nothing, NO_ARGS}
 };
@@ -31,7 +34,10 @@ int halt_flag = 0;  // глобальная переменная
 int main(int argc, char *argv[]) 
 { 
     const char * filename = (argc > 1) ? argv[1] : "no file";
-    trace(INFO, "\nИспользуется файл: %s\n", filename);
+
+    set_log_level(DEBUG);
+
+    trace(DEBUG, "\nИспользуется файл: %s\n", filename);
     load_file(filename);
     
     run();
@@ -46,7 +52,6 @@ unsigned int is_byte; // 0 если word, 1 если byte
 void run()
 {
     pc = 01000;
-    set_log_level(TRACE);
     
     word w = 0;
     trace(INFO, "---------------- running --------------\n");
@@ -257,6 +262,29 @@ void do_bpl()
     }
 }
 
+void do_jsr()
+{
+    int r = (current >> 6) & 7;
+
+    sp -= 2;
+    w_write(sp, reg[r]);
+
+    reg[r] = pc;
+    pc = dd.adr;
+}
+
+void do_rts()
+{
+    int r = current & 7;
+    word target = reg[r];
+    word old_r = w_read(sp);
+
+    sp += 2;
+
+    pc = target;
+    reg[r] = old_r;
+}
+
 Arg get_mr(word w)
 {
     Arg res;
@@ -309,6 +337,14 @@ Arg get_mr(word w)
         res.adr = w_read(reg[r]);
         res.val = w_read(res.adr);
         trace(TRACE, "@-(R%d) ", r);
+        break;
+
+    case 6: 
+        word x = w_read(pc);
+        pc += 2;
+        res.adr = reg[r] + x;
+        res.val = is_byte ? b_read(res.adr) : w_read(res.adr);
+        trace(TRACE, "%o(R%d) ", x, r);
         break;
      
     default:

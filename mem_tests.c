@@ -71,10 +71,10 @@ void load_file(const char * filename)
         exit(1);
     }
     
-    trace(INFO, "Загрузка тестовых данных из: %s\n", filename);
+    trace(DEBUG, "Загрузка тестовых данных из: %s\n", filename);
     load_data(file);
     fclose(file);
-    trace(INFO, "Тестовые данные успешно загружены\n\n");
+    trace(DEBUG, "Тестовые данные успешно загружены\n\n");
 }
 
 void load_data(FILE * file)
